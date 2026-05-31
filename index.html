@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Living-standard Inequality Visualisation</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.plot.ly/plotly-3.4.0.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+</head>
+<body>
+  <!-- 网页的顶部栏，样式主要由 styles.css 里的 .topBar、.brand 和 nav 控制 -->
+  <!-- The top bar of the webpage, with its style mainly controlled by .topBar, .brand and nav in styles.css -->
+  <header class="topBar">
+    <div class="brand">Living-standard Inequality Visualisation</div>
+    <nav>
+      <a href="#story">Story</a>
+      <a href="#mapSection">Map</a>
+      <a href="#gapSection">Average vs Typical</a>
+      <a href="#growthSection">Bottom 40%</a>
+    </nav>
+  </header>
+
+  <!-- 网页的主要内容区域，每个 section 对应网页中的一个文字或图表模块 -->
+  <!-- The main content area of the webpage, where each section corresponds to a text or chart module -->
+  <main>
+    <!-- Introduction区域，hero 和 twoColumn 由 styles.css 控制为左右布局 -->
+    <!-- Introduction area, where hero and twoColumn are controlled by styles.css to create a two-column layout -->
+    <section id="story" class="hero twoColumn">
+      <div>
+        <h1>The growth of a country’s average living standard may hide the fact that lower-income people are not benefiting at the same pace</h1>
+        <p class="subtitle">A visual story about why average income can hide ordinary living standards.</p>
+        <p class="intro">The world is getting richer, but wealth growth is not always shared equally. In many countries, high-income groups raise the national average level, while ordinary people may experience a completely different reality. This webpage demonstrates this fact by comparing mean income, median income, and income growth among the bottom 40%.</p>
+      </div>
+      <!-- 右侧的问题卡片提示研究问题，box shadow、圆角由 styles.css 控制 -->
+      <!-- The question card on the right presents the research question, with box shadow and rounded corners controlled by styles.css -->
+      <aside class="questionCard">
+        <h2>The big question</h2>
+        <p>The world is richer than before, why does the gap between average living standards and ordinary people's lives still remain?</p>
+      </aside>
+    </section>
+
+    <!-- 地图模块， script.js 里用 drawMap() 调用并渲染成 Plotly 世界地图 -->
+    <!-- Map module, called by drawMap() in script.js and rendered as a Plotly world map -->
+    <section id="mapSection" class="card">
+      <div class="sectionHeader">
+        <span class="number">1</span>
+        <div>
+          <h2>The world is getting richer — on average</h2>
+          <p>This map shows that it is true that many countries are becoming richer, but economic levels are still unequal between countries</p>
+        </div>
+      </div>
+      <!-- 地图容器，id="mapChart" 和 script.js 联动 -->
+      <!-- Map container, where id="mapChart" is connected to script.js -->
+      <div id="mapChart" class="chart largeChart"></div>
+    </section>
+
+    <!-- 平均值与中位数模块，与 script.js 里的 buildCountryDropdown() 和 drawLineChart() 联动 -->
+    <!-- Mean and median module, connected to buildCountryDropdown() and drawLineChart() in script.js -->
+    <section id="gapSection" class="card">
+      <div class="sectionHeader">
+        <span class="number">2</span>
+        <div>
+          <h2>Average vs. typical person: the ordinary-life gap</h2>
+          <p>The mean is easily influenced by high-income groups, while the median is closer to the living standard of a typical ordinary person. This shows that the national figures may only look good on paper</p>
+        </div>
+      </div>
+      <div class="controls">
+        <!-- 国家下拉菜单，script.js 把国家自动填入这里，选择国家后重新绘制 lineChart -->
+        <!-- Country dropdown, where script.js automatically inserts countries and redraws lineChart after a country is selected -->
+        <select id="countrySelect"></select>
+      </div>
+      <!-- 折线图，id="lineChart" 对应 script.js 中的 Plotly.newPlot -->
+      <!-- Line chart, where id="lineChart" corresponds to Plotly.newPlot in script.js -->
+      <div id="lineChart" class="chart"></div>
+      <!-- 折线图下方的文字描述，方便观看者理解数据的意思，script.js 会change the 说明automaticly according to the seleted country -->
+      <!-- The text description below the line chart helps viewers understand the meaning of the data, and script.js automatically changes this explanation according to the selected country -->
+      <p id="countryInsight" class="insightBox"></p>
+    </section>
+
+    <!-- 底层 40% 消费水平增长情况的模块，与 script.js 里的 drawGrowthChart() 联动 -->
+    <!-- Module for consumption growth among the bottom 40%, connected to drawGrowthChart() in script.js -->
+    <section id="growthSection" class="card">
+      <div class="sectionHeader">
+        <span class="number">3</span>
+        <div>
+          <h2>Is growth reaching the bottom 40%?</h2>
+          <p>This chart shows that the benefits received by low-income groups are unequal across different countries. A higher green bar means that the bottom groups are also benefiting, while a higher blue bar means that the bottom groups have not benefited at the same pace as national economic growth</p>
+        </div>
+      </div>
+      <!-- 国家勾选框：script.js 会把有 bottom 40% 数据的国家生成 checkbox，用户勾选后会重新绘制柱状图 -->
+      <!-- Country checkboxes, where script.js generates checkbox options for countries with bottom 40% data and redraws the bar chart after users select them -->
+      <div class="controls growthControls">
+        <div class="growthControlHeader">
+          <p class="controlLabel">Choose countries:</p>
+          <div class="growthQuickActions">
+            <button type="button" id="growthDefault">Default</button>
+            <button type="button" id="growthSelectAll">Select all</button>
+            <button type="button" id="growthClearAll">Clear all</button>
+          </div>
+        </div>
+        <div id="growthCountryChecks" class="checkboxGrid"></div>
+      </div>
+      <!-- 柱状图容器：id="barChart" 对应 script.js 中的 Plotly.newPlot('barChart', ...)。 -->
+      <!-- Bar chart container, where id="barChart" corresponds to Plotly.newPlot('barChart', ...) in script.js -->
+      <div id="barChart" class="chart"></div>
+    </section>
+
+    <!-- 总结区域 -->
+    <!-- Summary area -->
+    <section id="takeaways" class="card miniCard">
+      <h2>Key takeaways</h2>
+      <ul>
+        <li>Economic growth at the national level can hide unequal living standards between people.</li>
+        <li>Growth in average consumption does not necessarily mean that ordinary people’s consumption has also grown.</li>
+        <li>Growth in average consumption does not necessarily mean that the lower-income groups have also benefited.</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- 页脚：放数据来源、工具和项目说明；样式由 styles.css 中的 footer 控制。 -->
+  <!-- Footer, used for data sources, tools and project notes, with its style controlled by footer in styles.css -->
+  <footer>
+    <p>Data source: Our World in Data, available at https://ourworldindata.org</p>
+  </footer>
+
+  <!-- 连接 JavaScript 文件：script.js 负责读取 CSV 数据、处理交互，并把 Plotly 图表放进上面的 mapChart、lineChart 和 barChart 容器。 -->
+  <!-- Link the JavaScript file, where script.js loads CSV data, handles interactions, and places Plotly charts into the mapChart, lineChart and barChart containers above -->
+  <script src="script.js"></script>
+</body>
+</html>
